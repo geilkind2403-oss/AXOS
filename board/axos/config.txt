@@ -1,0 +1,13 @@
+# AXOS boot settings (Raspberry Pi 3)
+start_file=start.elf
+fixup_file=fixup.dat
+kernel=zImage
+disable_overscan=1
+# full speed, always: no cap like the old arm_freq=600
+arm_freq=1200
+# the launcher draws through KMS; the video decoder needs GPU memory
+dtoverlay=vc4-kms-v3d,cma-256
+gpu_mem=128
+dtparam=audio=on
+# no rainbow square, no boot text
+disable_splash=1

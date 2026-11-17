@@ -1,0 +1,84 @@
+name: AXOS image
+
+# Builds the AXOS SD card image (axos.img) for the Raspberry Pi 3.
+# Started by hand: Actions > AXOS image > Run workflow.
+on:
+  workflow_dispatch:
+
+env:
+  BR_VERSION: "2025.02.x"
+
+jobs:
+  axos:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 350
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Get the newest AXUS launcher release
+        run: |
+          mkdir -p axus
+          curl -fsSL -o axus.tar.gz https://github.com/geilkind2403-oss/AXUS/releases/latest/download/tv-launcher-pi.tar.gz
+          tar -xzf axus.tar.gz -C axus
+          ./axus/pi/tv-launcher --version 2>/dev/null || true
+          ls -la axus/pi
+
+      - name: Restore compiler cache
+        uses: actions/cache/restore@v4
+        with:
+          path: ~/.buildroot-ccache
+          key: axos-ccache-${{ env.BR_VERSION }}-${{ hashFiles('distro/**') }}-${{ github.run_id }}
+          restore-keys: |
+            axos-ccache-${{ env.BR_VERSION }}-
+
+      - name: Restore downloads
+        uses: actions/cache/restore@v4
+        with:
+          path: ~/br-dl
+          key: axos-dl-${{ env.BR_VERSION }}-${{ github.run_id }}
+          restore-keys: axos-dl-${{ env.BR_VERSION }}-
+
+      - name: Get Buildroot
+        run: git clone --depth 1 --branch $BR_VERSION https://github.com/buildroot/buildroot ~/buildroot
+
+      - name: Configure
+        run: cd ~/buildroot && make BR2_EXTERNAL=$GITHUB_WORKSPACE/distro BR2_DL_DIR=$HOME/br-dl axos_rpi3_defconfig
+
+      - name: Build
+        timeout-minutes: 320
+        run: |
+          cd ~/buildroot
+          ( while sleep 600; do echo "... still building ($(date -u +%H:%M))"; done ) &
+          set +e
+          make BR2_DL_DIR=$HOME/br-dl BR2_JLEVEL=$(nproc) 2>&1 | tee ~/build.log | grep --line-buffered -E '^>>> |Error|error:'
+          status=${PIPESTATUS[0]}
+          exit $status
+
+      - name: Build log (tail)
+        if: always()
+        run: tail -n 150 ~/build.log || true
+
+      - name: Save downloads
+        if: always()
+        uses: actions/cache/save@v4
+        with:
+          path: ~/br-dl
+          key: axos-dl-${{ env.BR_VERSION }}-${{ github.run_id }}
+
+      - name: Save compiler cache
+        if: always()
+        uses: actions/cache/save@v4
+        with:
+          path: ~/.buildroot-ccache
+          key: axos-ccache-${{ env.BR_VERSION }}-${{ hashFiles('distro/**') }}-${{ github.run_id }}
+
+      - name: Package
+        run: |
+          mkdir -p dist
+          xz -T0 -c ~/buildroot/output/images/axos.img > dist/axos.img.xz
+          ls -la dist
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: axos-image
+          path: dist/axos.img.xz
