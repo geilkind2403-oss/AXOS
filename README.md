@@ -12,7 +12,7 @@ sound (ALSA), TV remote (CEC), SSH (`root` / `axos`). No browser, no A/B updates
 boot (FAT, 64 MB) | system (ext4, 400 MB) | storage (ext4, 256 MB → /storage)
 ```
 
-`/storage` holds the launcher, its settings and dataso the launcher and its updates run unchanged. Each image starts with the
+`/storage` holds the launcher, its settings and data,so the launcher and its updates run unchanged. Each image starts with the
 newest AXUS release; after that the launcher updates itself as usual.
 
 ## Build
