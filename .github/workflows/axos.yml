@@ -5,6 +5,9 @@ name: AXOS image
 on:
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 env:
   BR_VERSION: "2025.02.x"
 
@@ -82,3 +85,14 @@ jobs:
         with:
           name: axos-image
           path: dist/axos.img.xz
+
+      - name: Publish as a pre-release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: axos-dev-${{ github.run_number }}
+          name: AXOS dev build ${{ github.run_number }}
+          prerelease: true
+          body: |
+            Test image for the Raspberry Pi 3, built from ${{ github.sha }}.
+            Flash axos.img.xz with Raspberry Pi Imager ("Use custom") onto a spare SD card.
+          files: dist/axos.img.xz
