@@ -27,7 +27,7 @@ jobs:
         uses: actions/cache/restore@v4
         with:
           path: ~/.buildroot-ccache
-          key: axos-ccache-${{ env.BR_VERSION }}-${{ hashFiles('distro/**') }}-${{ github.run_id }}
+          key: axos-ccache-${{ env.BR_VERSION }}-${{ hashFiles('configs/**', 'board/**', 'overlay/**') }}-${{ github.run_id }}
           restore-keys: |
             axos-ccache-${{ env.BR_VERSION }}-
 
@@ -42,7 +42,7 @@ jobs:
         run: git clone --depth 1 --branch $BR_VERSION https://github.com/buildroot/buildroot ~/buildroot
 
       - name: Configure
-        run: cd ~/buildroot && make BR2_EXTERNAL=$GITHUB_WORKSPACE/distro BR2_DL_DIR=$HOME/br-dl axos_rpi3_defconfig
+        run: cd ~/buildroot && make BR2_EXTERNAL=$GITHUB_WORKSPACE BR2_DL_DIR=$HOME/br-dl axos_rpi3_defconfig
 
       - name: Build
         timeout-minutes: 320
@@ -70,7 +70,7 @@ jobs:
         uses: actions/cache/save@v4
         with:
           path: ~/.buildroot-ccache
-          key: axos-ccache-${{ env.BR_VERSION }}-${{ hashFiles('distro/**') }}-${{ github.run_id }}
+          key: axos-ccache-${{ env.BR_VERSION }}-${{ hashFiles('configs/**', 'board/**', 'overlay/**') }}-${{ github.run_id }}
 
       - name: Package
         run: |
