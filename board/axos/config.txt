@@ -5,8 +5,10 @@ kernel=zImage
 disable_overscan=1
 # full speed, always: no cap like the old arm_freq=600
 arm_freq=1200
-# the launcher draws through KMS; the video decoder needs GPU memory
-dtoverlay=vc4-kms-v3d,cma-256
+# the launcher draws through KMS; the video decoder needs GPU memory.
+# AXUS uses ~25 MB of CMA for menus and a 1080p film (measured: 33 MB of
+# 64 were still free): 128 leaves room and gives 128 MB back to Linux
+dtoverlay=vc4-kms-v3d,cma-128
 gpu_mem=128
 dtparam=audio=on
 # no rainbow square, no boot text
