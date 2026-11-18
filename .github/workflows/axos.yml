@@ -18,10 +18,16 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Get the newest AXUS launcher release
+      - name: Get the pinned AXUS launcher release (axus.lock)
+        # axus.lock: line 1 the AXUS release tag, line 2 the sha256 of its
+        # tv-launcher-pi.tar.gz. A different file stops the build.
         run: |
           mkdir -p axus
-          curl -fsSL -o axus.tar.gz https://github.com/geilkind2403-oss/AXUS/releases/latest/download/tv-launcher-pi.tar.gz
+          tag=$(sed -n 1p axus.lock)
+          sum=$(sed -n 2p axus.lock)
+          curl -fsSL -o axus.tar.gz "https://github.com/geilkind2403-oss/AXUS/releases/download/$tag/tv-launcher-pi.tar.gz"
+          echo "$sum  axus.tar.gz" | sha256sum -c -
+          echo "AXUS_TAG=$tag" >> "$GITHUB_ENV"
           tar -xzf axus.tar.gz -C axus
           ./axus/pi/tv-launcher --version 2>/dev/null || true
           ls -la axus/pi
@@ -75,10 +81,20 @@ jobs:
           path: ~/.buildroot-ccache
           key: axos-ccache-${{ env.BR_VERSION }}-${{ hashFiles('configs/**', 'board/**', 'overlay/**') }}-${{ github.run_id }}
 
+      - name: Licenses and sources (GPL)
+        # every package's license text and its exact source code, as the
+        # GPL asks of anyone passing the image on
+        run: |
+          cd ~/buildroot
+          make BR2_DL_DIR=$HOME/br-dl legal-info
+          tar -C output -cf - legal-info | xz -T0 > $GITHUB_WORKSPACE/axos-sources.tar.xz
+          ls -la $GITHUB_WORKSPACE/axos-sources.tar.xz
+
       - name: Package
         run: |
           mkdir -p dist
           xz -T0 -c ~/buildroot/output/images/axos.img > dist/axos.img.xz
+          mv axos-sources.tar.xz dist/
           ls -la dist
 
       - uses: actions/upload-artifact@v4
@@ -95,4 +111,9 @@ jobs:
           body: |
             Test image for the Raspberry Pi 3, built from ${{ github.sha }}.
             Flash axos.img.xz with Raspberry Pi Imager ("Use custom") onto a spare SD card.
-          files: dist/axos.img.xz
+            AXUS ${{ env.AXUS_TAG }}, checked against its sha256 (axus.lock).
+            axos-sources.tar.xz: the licenses and the complete sources of every
+            package in the image (GPL). AXOS and AXUS are GPL-3.0.
+          files: |
+            dist/axos.img.xz
+            dist/axos-sources.tar.xz

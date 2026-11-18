@@ -30,3 +30,11 @@ make BR2_EXTERNAL=.. axos_rpi3_defconfig
 make                                             # a few hours the first time
 # → output/images/axos.img
 ```
+
+## License
+
+AXOS is free software under the **GNU General Public License v3.0** (see [LICENSE](LICENSE)).
+The packages inside the image keep their own licenses (Linux, BusyBox and others: GPL-2.0;
+glibc: LGPL). Every image release carries `axos-sources.tar.xz` with all their license texts
+and their exact sources (Buildroot `legal-info`). The AXUS launcher in the image is the
+release named in `axus.lock`, checked against its sha256 while building.
