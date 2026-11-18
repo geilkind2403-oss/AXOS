@@ -1,0 +1,2 @@
+# AXOS: SSH stays off until switched on in Settings > System
+disable dropbear.service

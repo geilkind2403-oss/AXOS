@@ -4,7 +4,7 @@ The operating system for the [AXUS](https://github.com/geilkind2403-oss/AXUS) la
 built with Buildroot, that boots straight into the launcher.
 
 **Step 1 (now):** HDMI picture, the launcher, Wi-Fi/LAN (connman), Bluetooth (BlueZ),
-sound (ALSA), TV remote (CEC), SSH (`root` / `axos`). No browser, no A/B updates yet.
+sound (ALSA), TV remote (CEC), SSH (off at first; switch it on and choose a password in Settings › System — there is no default password). No browser, no A/B updates yet.
 
 ## SD card
 

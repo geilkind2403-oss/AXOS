@@ -12,3 +12,7 @@ cat > "$TARGET_DIR/etc/systemd/system/tv-launcher.service.d/axos.conf" <<'C'
 [Unit]
 RequiresMountsFor=/storage
 C
+# No default password: root's login is locked ("*") until the owner sets
+# one in Settings > System. SSH (dropbear) is off until switched on there.
+sed -i 's/^root:[^:]*:/root:*:/' "$TARGET_DIR/etc/shadow"
+rm -f "$TARGET_DIR"/etc/systemd/system/*.wants/dropbear.service
