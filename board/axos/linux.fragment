@@ -11,3 +11,5 @@ CONFIG_BRCMFMAC=m
 CONFIG_BT_HCIUART=m
 CONFIG_BT_HCIUART_BCM=y
 CONFIG_EXT4_FS=y
+# full speed from boot (cmdline cpufreq.default_governor=performance)
+CONFIG_CPU_FREQ_GOV_PERFORMANCE=y

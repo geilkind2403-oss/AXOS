@@ -1,1 +1,1 @@
-root=/dev/mmcblk0p2 rootwait rw console=tty3 quiet loglevel=3 vt.global_cursor_default=0 logo.nologo
+root=/dev/mmcblk0p2 rootwait rw console=tty3 quiet loglevel=3 vt.global_cursor_default=0 logo.nologo cpufreq.default_governor=performance
